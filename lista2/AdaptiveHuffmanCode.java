@@ -1,5 +1,8 @@
+import javax.swing.plaf.IconUIResource;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Hashtable;
+import java.util.Map;
 
 public class AdaptiveHuffmanCode {
   private final HuffmanNode nyt;
@@ -17,7 +20,7 @@ public class AdaptiveHuffmanCode {
   public byte[] encode(byte[] content) {
     StringBuilder result = new StringBuilder();
     for (byte symbol : content) {
-      if (seen[((char) symbol)] != null) {
+      if (seen[symbol] != null) {
         result.append(getSymbolCode(symbol, root, ""));
       } else {
         result.append(getSymbolCode(HuffmanNode.NYT.getSymbol(), root, ""));
@@ -26,11 +29,43 @@ public class AdaptiveHuffmanCode {
       insert(symbol);
     }
     return result.toString().getBytes();
-  
   }
   
-  public void decode(String input, String output) {
+  public byte[] decode(String content) {
+//    System.out.println(content);
+//    System.out.println("TRUE NYT " + HuffmanNode.NYT);
+//    System.out.println("Rooot " + root);
+    var symbol = getASCIIChar(content.substring(0, 8));
+    StringBuilder result = new StringBuilder("" + symbol);
+    insert((byte) symbol);
+//    System.out.println("Rooot " + root);
   
+    var node = root;
+    System.out.println(result);
+    for (int i = 8; i < content.length(); i++) {
+//      System.out.println("nodek " + node);
+//      System.out.println(content.charAt(i));
+      node = content.charAt(i) == '0' ? node.getLeft() : node.getRight();
+//      System.out.println("nodjsjdhjses " + nodes);
+//      System.out.println(node);
+      symbol = (char) node.getSymbol();
+      System.out.println("symbool " + symbol);
+      
+      
+      if ((byte) symbol > 0 || node == HuffmanNode.NYT) {
+        if (node == HuffmanNode.NYT) {
+          symbol = getASCIIChar(content.substring(i +1 , i + 9));
+          System.out.println("NYT CHAR " + symbol);
+          i += 7;
+        }
+        result.append(symbol);
+        insert((byte) symbol);
+        node = root;
+//        System.out.println("new node " + node);
+      }
+      System.out.println(result);
+    }
+    return result.toString().getBytes();
   }
   
   
@@ -103,9 +138,9 @@ public class AdaptiveHuffmanCode {
       node = internal.getParent();
     }
     
-    while( node != null) {
+    while (node != null) {
       var largest = this.findNodeOfWeight(node.getWeight());
-      if (node != largest && largest != null && node != largest.getParent() && largest != node.getParent()){
+      if (node != largest && largest != null && node != largest.getParent() && largest != node.getParent()) {
         swapNodes(node, largest);
       }
       node.setWeight(node.getWeight() + 1);
@@ -113,4 +148,29 @@ public class AdaptiveHuffmanCode {
     }
     
   }
+  
+  private char getASCIIChar(String binaryString) {
+    return (char) Integer.parseInt(binaryString, 2);
+  }
+  
+  public static double entropy(String content) {
+    Map<Character, Integer> char_occurences = new Hashtable<>();
+    
+    for (char c : content.toCharArray()) {
+      char_occurences.put(c, char_occurences.get(c) != null ? char_occurences.get(c) + 1 : 1);
+    }
+  
+    final int[] result = {0};
+    char_occurences.forEach((character, integer) -> result[0] += integer * log2(integer));
+  
+    double size = content.length();
+  
+    return log2(size) - (result[0] / size);
+  }
+  
+  
+  private static double log2(double x) {
+    return Math.log(x) / Math.log(2);
+  }
+  
 }

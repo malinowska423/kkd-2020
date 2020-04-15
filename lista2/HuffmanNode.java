@@ -60,6 +60,9 @@ public class HuffmanNode {
   
   @Override
   public String toString() {
-    return "{" + symbol + ", " + (parent == null ? "null" : parent.symbol) + "}";
+    return "{" + symbol + ", " + (parent == null ? "null" : parent.symbol)
+        + ", " + (left == null ? "null" : left.symbol)
+        + ", " + (right == null ? "null" : right.symbol)
+        + "}";
   }
 }
