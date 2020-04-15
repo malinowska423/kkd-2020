@@ -3,11 +3,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class EntropyAnalyzer {
   private final String filename;
-  private final Map<Integer, Integer> symbolOccur;
-  private final Map<Pair, Integer> symbolPairsOccur;
+  private final Map<Byte, Integer> symbolOccur;
+  private final Map<String, Integer> symbolPairsOccur;
   private final int size;
   private double entropy;
   private double condEntropy;
@@ -24,18 +25,16 @@ public class EntropyAnalyzer {
     if (this.size == 0) {
       throw new IOException("Plik jest pusty");
     }
-    byte[] bytes = new byte[this.size];
-    reader.read(bytes);
-    Integer[] content = new Integer[this.size];
-    for (int i = 0; i < content.length; i++) {
-      content[i] = (int) bytes[i];
+    byte[] content = new byte[this.size];
+    if(reader.read(content) == -1) {
+      throw new IOException("Plik jest pusty");
     }
     symbolOccur.put(content[0], 1);
-    symbolPairsOccur.put(new Pair(0, content[0]), 1);
+    symbolPairsOccur.put(makePair((byte) 0, content[0]), 1);
     for (int i = 1; i < content.length; i++) {
-      int key = content[i];
+      byte key = content[i];
       symbolOccur.put(key, symbolOccur.get(key) != null ? symbolOccur.get(key) + 1 : 1);
-      Pair pair = new Pair(content[i - 1], content[i]);
+      String pair = makePair(content[i - 1], content[i]);
       symbolPairsOccur.put(pair, symbolPairsOccur.get(pair) != null ? symbolPairsOccur.get(pair) + 1 : 1);
     }
     this.countEntropy();
@@ -48,7 +47,7 @@ public class EntropyAnalyzer {
       double x = log2(occur);
       entropy += (sizeLog - x) * occur;
       symbolPairsOccur.forEach((pair, pairOccur) -> {
-        if (pair.symbol.equals(symbol)) {
+        if (pair.split(" ")[0].equals(symbol.toString())) {
           condEntropy += pairOccur * (x - log2(pairOccur));
         }
       });
@@ -56,27 +55,20 @@ public class EntropyAnalyzer {
     
     entropy /= size;
     condEntropy /= size;
-    
   }
   
   private double log2(double x) {
     return Math.log(x) / Math.log(2);
   }
   
+  private String makePair(byte prev, byte sym) {
+    return prev + " " + sym;
+  }
+  
   public void printFileEntropyInfo() {
     System.out.println("=========== " + filename + " (" + size + " B) ===========");
     System.out.println("Entropia = " + entropy);
     System.out.println("Entropia warunkowa = " + condEntropy + "\n");
-  }
-  
-  private static class Pair {
-    public Integer prevSymbol;
-    public Integer symbol;
-    
-    public Pair(Integer prevSymbol, Integer symbol) {
-      this.prevSymbol = prevSymbol;
-      this.symbol = symbol;
-    }
   }
   
 }
