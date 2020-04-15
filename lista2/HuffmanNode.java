@@ -1,5 +1,5 @@
 public class HuffmanNode {
-  public static HuffmanNode NYT = new HuffmanNode((byte) 0);
+  public static HuffmanNode NYT = new HuffmanNode((byte) -1);
   private final byte symbol;
   private int weight;
   private HuffmanNode parent;

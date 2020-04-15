@@ -1,4 +1,4 @@
-import javax.swing.plaf.IconUIResource;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Hashtable;
@@ -6,15 +6,34 @@ import java.util.Map;
 
 public class AdaptiveHuffmanCode {
   private final HuffmanNode nyt;
-  private HuffmanNode root;
   private final ArrayList<HuffmanNode> nodes;
   private final HuffmanNode[] seen;
+  private HuffmanNode root;
   
   public AdaptiveHuffmanCode() {
     nyt = HuffmanNode.NYT;
     root = nyt;
     nodes = new ArrayList<>();
     seen = new HuffmanNode[256];
+  }
+  
+  public static double entropy(String content) {
+    Map<Character, Integer> symOccur = new Hashtable<>();
+    
+    for (char c : content.toCharArray()) {
+      symOccur.put(c, symOccur.get(c) != null ? symOccur.get(c) + 1 : 1);
+    }
+    
+    final int[] result = {0};
+    symOccur.forEach((character, integer) -> result[0] += integer * log2(integer));
+    
+    double size = content.length();
+    
+    return log2(size) - (result[0] / size);
+  }
+  
+  private static double log2(double x) {
+    return Math.log(x) / Math.log(2);
   }
   
   public byte[] encode(byte[] content) {
@@ -31,43 +50,32 @@ public class AdaptiveHuffmanCode {
     return result.toString().getBytes();
   }
   
-  public byte[] decode(String content) {
-//    System.out.println(content);
-//    System.out.println("TRUE NYT " + HuffmanNode.NYT);
-//    System.out.println("Rooot " + root);
-    var symbol = getASCIIChar(content.substring(0, 8));
-    StringBuilder result = new StringBuilder("" + symbol);
-    insert((byte) symbol);
-//    System.out.println("Rooot " + root);
-  
+  public byte[] decode(byte[] contentBytes) {
+    String content = new String(contentBytes, StandardCharsets.UTF_8);
+    StringBuilder result = new StringBuilder();
+    byte symbol = Byte.parseByte(content.substring(0, 8), 2);
+    result.append((char) symbol);
+    insert(symbol);
+    
     var node = root;
-    System.out.println(result);
-    for (int i = 8; i < content.length(); i++) {
-//      System.out.println("nodek " + node);
-//      System.out.println(content.charAt(i));
+    int i = 8;
+    while (i < content.length()) {
       node = content.charAt(i) == '0' ? node.getLeft() : node.getRight();
-//      System.out.println("nodjsjdhjses " + nodes);
-//      System.out.println(node);
-      symbol = (char) node.getSymbol();
-      System.out.println("symbool " + symbol);
+      symbol = node.getSymbol();
       
-      
-      if ((byte) symbol > 0 || node == HuffmanNode.NYT) {
+      if (symbol != (byte) 0) {
         if (node == HuffmanNode.NYT) {
-          symbol = getASCIIChar(content.substring(i +1 , i + 9));
-          System.out.println("NYT CHAR " + symbol);
-          i += 7;
+          symbol = Byte.parseByte(content.substring(i + 1, i + 9), 2);
+          i += 8;
         }
-        result.append(symbol);
-        insert((byte) symbol);
+        result.append((char) symbol);
+        insert(symbol);
         node = root;
-//        System.out.println("new node " + node);
       }
-      System.out.println(result);
+      i++;
     }
     return result.toString().getBytes();
   }
-  
   
   private String getSymbolCode(byte symbol, HuffmanNode node, String code) {
     if (node.getLeft() == null && node.getRight() == null) {
@@ -147,30 +155,6 @@ public class AdaptiveHuffmanCode {
       node = node.getParent();
     }
     
-  }
-  
-  private char getASCIIChar(String binaryString) {
-    return (char) Integer.parseInt(binaryString, 2);
-  }
-  
-  public static double entropy(String content) {
-    Map<Character, Integer> char_occurences = new Hashtable<>();
-    
-    for (char c : content.toCharArray()) {
-      char_occurences.put(c, char_occurences.get(c) != null ? char_occurences.get(c) + 1 : 1);
-    }
-  
-    final int[] result = {0};
-    char_occurences.forEach((character, integer) -> result[0] += integer * log2(integer));
-  
-    double size = content.length();
-  
-    return log2(size) - (result[0] / size);
-  }
-  
-  
-  private static double log2(double x) {
-    return Math.log(x) / Math.log(2);
   }
   
 }

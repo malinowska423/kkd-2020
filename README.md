@@ -19,3 +19,21 @@ Aby uruchomić program dla <b>wszystkich plików w folderze</b> należy uruchomi
 ```
 $ java -cp out Main -d testy1
 ```
+
+## Lista 2
+Pliki źródłowe do tej listy znajdują się w folderze `lista2`, a są to:
+- `AdaptiveHuffmanCode.java` - plik zawierający główną klasę zawierającą funkcje kodującą i dekodującą podany ciąg bajtów
+- `HuffmanNode.java` - plik zawierający klasę wierzchołka w drzewie Huffmana
+- `Main.java` - plik zawierający klasę obsługującą wejście i wyjście z programu
+
+Kompilacja przebiega analogicznie do listy pierwszej.
+
+Aby zakodować plik `test.txt` do pliku `test.out` należy wywołać polecenie
+```
+$ java -cp out Main -e test.txt test.out
+```
+
+Aby zdekodować plik `test.out` do pliku `test-back.txt` należy wywołać polecenie
+```
+$ java -cp out Main -d test.out test-back.txt
+```

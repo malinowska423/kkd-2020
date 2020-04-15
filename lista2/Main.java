@@ -37,13 +37,14 @@ public class Main {
         }
         case "-d" -> {
           try (InputStream stream = Files.newInputStream(Paths.get(input))) {
-            String content = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+            byte [] content = stream.readAllBytes();
             stream.close();
             var coder = new AdaptiveHuffmanCode();
             var result = coder.decode(content);
             OutputStream out = Files.newOutputStream(Paths.get(output));
             out.write(result);
             out.close();
+            System.out.println("========= Zdekodowano plik: " + input + " =========");
           } catch (IOException ioe) {
             System.out.println("Blad: " + ioe.getMessage());
           }
