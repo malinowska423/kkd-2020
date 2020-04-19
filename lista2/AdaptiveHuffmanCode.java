@@ -50,22 +50,26 @@ public class AdaptiveHuffmanCode {
     return getBytesFromBinaryString(result.toString());
   }
   
-  public byte[] decode(byte[] contentBytes) {
-    String content = getBinaryStringFromBytes(contentBytes);
+  public byte[] decode(byte[] content) {
+    String stringContent = getBinaryStringFromBytes(content);
     StringBuilder result = new StringBuilder();
-    byte symbol = Byte.parseByte(content.substring(0, 8), 2);
+    byte symbol = Byte.parseByte(stringContent.substring(0, 8), 2);
     result.append((char) symbol);
     insert(symbol);
     
     var node = root;
     int i = 8;
-    while (i < content.length()) {
-      node = content.charAt(i) == '0' ? node.getLeft() : node.getRight();
+    while (i < stringContent.length()) {
+      node = stringContent.charAt(i) == '0' ? node.getLeft() : node.getRight();
       symbol = node.getSymbol();
       
       if (symbol != (byte) 0) {
         if (node == HuffmanNode.NYT) {
-          symbol = Byte.parseByte(content.substring(i + 1, i + 9), 2);
+          try {
+            symbol = Byte.parseByte(stringContent.substring(i + 1, i + 9), 2);
+          } catch (StringIndexOutOfBoundsException e) {
+            symbol = Byte.parseByte(stringContent.substring(i + 1), 2);
+          }
           i += 8;
         }
         result.append((char) symbol);
@@ -74,7 +78,6 @@ public class AdaptiveHuffmanCode {
       }
       i++;
     }
-    System.out.println(result.toString().length());
     return result.toString().getBytes();
   }
   
@@ -159,20 +162,14 @@ public class AdaptiveHuffmanCode {
   }
   
   private byte[] getBytesFromBinaryString(String s) {
-    int lastByteSize = s.length() % 8;
-    int size = s.length() / 8;
-    byte[] bytes;
-    if (lastByteSize == 0) {
-      bytes = new byte[size];
-    } else {
-      bytes = new byte[size + 1];
-    }
-    int k = 0;
-    for (int i = 0; i < size; i++, k += 8) {
-      bytes[i] = (byte) Short.parseShort(s.substring(k, k + 8), 2);
-    }
-    if (lastByteSize > 0) {
-      bytes[size] = (byte) Short.parseShort(s.substring(k), 2);
+    int size = (s.length() / 8) + (s.length() % 8 > 0 ? 1 : 0);
+    byte[] bytes = new byte[size];
+    for (int i = 0, k = 0; i < size; i++, k += 8) {
+      try {
+        bytes[i] = (byte) Short.parseShort(s.substring(k, k + 8), 2);
+      } catch (StringIndexOutOfBoundsException e) {
+        bytes[i] = (byte) Short.parseShort(s.substring(k), 2);
+      }
     }
     return bytes;
   }

@@ -17,19 +17,22 @@ public class Main {
           try (InputStream stream = Files.newInputStream(Paths.get(input))) {
             byte[] content = stream.readAllBytes();
             stream.close();
-            String stringContent = new String(content, StandardCharsets.UTF_8);
-            var entropy = AdaptiveHuffmanCode.entropy(stringContent);
             var coder = new AdaptiveHuffmanCode();
             var result = coder.encode(content);
-            var resultLen = new String(result, StandardCharsets.UTF_8).length();
-            var avg = resultLen / stringContent.length();
-            var ratio = stringContent.length() * 8 / resultLen;
             OutputStream out = Files.newOutputStream(Paths.get(output));
             out.write(result);
             out.close();
-            System.out.println("========= Zakodowano plik: " + input + " =========");
+            System.out.println("\n========= Zakodowano plik: " + input + " =========");
+            System.out.println("Rozmiar pliku wejsciowego: " + content.length + " B");
+            System.out.println("Rozmiar pliku wyjsciowego: " + result.length + " B");
+            
+            String stringContent = new String(content, StandardCharsets.UTF_8);
+            var entropy = AdaptiveHuffmanCode.entropy(stringContent);
+            var avg = (double) result.length / stringContent.length();
+            var ratio = (double) content.length / result.length;
+            
             System.out.println("Entropia: " + entropy);
-            System.out.println("Srednia dlugosc kodowania: " + avg);
+            System.out.println("Srednia dlugosc kodu: " + avg);
             System.out.println("Stopien kompresji: " + ratio);
           } catch (IOException ioe) {
             System.out.println("Blad: " + ioe.getMessage());
@@ -44,7 +47,9 @@ public class Main {
             OutputStream out = Files.newOutputStream(Paths.get(output));
             out.write(result);
             out.close();
-            System.out.println("========= Zdekodowano plik: " + input + " =========");
+            System.out.println("\n========= Zdekodowano plik: " + input + " =========");
+            System.out.println("Rozmiar pliku wejsciowego: " + content.length + " B");
+            System.out.println("Rozmiar pliku wyjsciowego: " + result.length + " B");
           } catch (IOException ioe) {
             System.out.println("Blad: " + ioe.getMessage());
           }
