@@ -47,11 +47,11 @@ public class AdaptiveHuffmanCode {
       }
       insert(symbol);
     }
-    return result.toString().getBytes();
+    return getBytesFromBinaryString(result.toString());
   }
   
   public byte[] decode(byte[] contentBytes) {
-    String content = new String(contentBytes, StandardCharsets.UTF_8);
+    String content = getBinaryStringFromBytes(contentBytes);
     StringBuilder result = new StringBuilder();
     byte symbol = Byte.parseByte(content.substring(0, 8), 2);
     result.append((char) symbol);
@@ -74,6 +74,7 @@ public class AdaptiveHuffmanCode {
       }
       i++;
     }
+    System.out.println(result.toString().length());
     return result.toString().getBytes();
   }
   
@@ -157,4 +158,31 @@ public class AdaptiveHuffmanCode {
     
   }
   
+  private byte[] getBytesFromBinaryString(String s) {
+    int lastByteSize = s.length() % 8;
+    int size = s.length() / 8;
+    byte[] bytes;
+    if (lastByteSize == 0) {
+      bytes = new byte[size];
+    } else {
+      bytes = new byte[size + 1];
+    }
+    int k = 0;
+    for (int i = 0; i < size; i++, k += 8) {
+      bytes[i] = (byte) Short.parseShort(s.substring(k, k + 8), 2);
+    }
+    if (lastByteSize > 0) {
+      bytes[size] = (byte) Short.parseShort(s.substring(k), 2);
+    }
+    return bytes;
+  }
+  
+  private String getBinaryStringFromBytes(byte[] bytes) {
+    StringBuilder s = new StringBuilder();
+    for (int i = 0; i < bytes.length - 1; i++) {
+      s.append(String.format("%8s", Integer.toBinaryString(bytes[i] & 0xFF)).replace(' ', '0'));
+    }
+    s.append(Integer.toBinaryString(bytes[bytes.length - 1] & 0xFF));
+    return s.toString();
+  }
 }
