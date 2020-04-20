@@ -12,9 +12,9 @@ public class LZWCode {
       case ELIAS_DELTA -> {
         encoder = new EliasEncoder(CodingType.ELIAS_DELTA);
       }
-//      case FIBONACCI -> {
-//        encoder = new FibonacciCode();
-//      }
+      case FIBONACCI -> {
+        encoder = new FibonacciCode();
+      }
       default -> {
         encoder = new EliasEncoder();
       }
