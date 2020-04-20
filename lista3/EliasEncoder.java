@@ -1,5 +1,5 @@
 public class EliasEncoder implements Encoder {
-  private CodingType codingType;
+  private final CodingType codingType;
   
   public EliasEncoder(CodingType codingType) {
     this.codingType = codingType;
@@ -22,7 +22,7 @@ public class EliasEncoder implements Encoder {
   
   private String eliasGamma(int number) {
     String code = Integer.toBinaryString(number);
-    code = String.format("%" + (code.length() + 1) + "s", code).replaceAll(" ", "0");
+    code = getNZeros(code.length() - 1) + code;
     return code;
   }
   
@@ -30,6 +30,10 @@ public class EliasEncoder implements Encoder {
     String code = Integer.toBinaryString(number).substring(1);
     code = eliasGamma(code.length() + 1) + code;
     return code;
+  }
+  
+  private String getNZeros(int n) {
+    return String.format("%" + n + "s", " ").replaceAll(" ", "0");
   }
   
   @Override

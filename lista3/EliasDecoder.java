@@ -1,6 +1,15 @@
 import java.util.ArrayList;
 
-public class EliasDecoder {
+public class EliasDecoder implements Decoder {
+  private final CodingType codingType;
+  
+  public EliasDecoder(CodingType codingType) {
+    this.codingType = codingType;
+  }
+  
+  public EliasDecoder() {
+    this(CodingType.ELIAS_OMEGA);
+  }
   
   public ArrayList<Integer> eliasGamma(String code) {
     ArrayList<Integer> codes = new ArrayList<>();
@@ -48,11 +57,32 @@ public class EliasDecoder {
         n = 1;
         index++;
       } else {
-        n = Integer.parseInt(code.substring(index, index + n + 1), 2);
+        String s = code.substring(index, index + n + 1);
         index += n + 1;
+        n = Integer.parseInt(s, 2);
       }
     }
     return codes;
   }
   
+  
+  @Override
+  public ArrayList<Integer> decode(String code) {
+    switch (codingType) {
+      case ELIAS_GAMMA -> {
+        return eliasGamma(code);
+      }
+      case ELIAS_DELTA -> {
+        return eliasDelta(code);
+      }
+      default -> {
+        return eliasOmega(code);
+      }
+    }
+  }
+  
+  @Override
+  public CodingType getCodingType() {
+    return codingType;
+  }
 }

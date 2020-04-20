@@ -1,66 +1,106 @@
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 public class LZWCode {
   private final Encoder encoder;
+  private final Decoder decoder;
   
   public LZWCode(CodingType codingType) {
     switch (codingType) {
       case ELIAS_GAMMA -> {
         encoder = new EliasEncoder(CodingType.ELIAS_GAMMA);
+        decoder = new EliasDecoder(CodingType.ELIAS_GAMMA);
       }
       case ELIAS_DELTA -> {
         encoder = new EliasEncoder(CodingType.ELIAS_DELTA);
+        decoder = new EliasDecoder(CodingType.ELIAS_DELTA);
       }
       case FIBONACCI -> {
         encoder = new FibonacciCode();
+        decoder = new FibonacciCode();
       }
       default -> {
         encoder = new EliasEncoder();
+        decoder = new EliasDecoder();
       }
     }
   }
   
-  public byte[] encode(byte[] input) {
-    StringBuilder output = new StringBuilder();
+  public byte[] encode(byte[] content) {
+    StringBuilder result = new StringBuilder();
     Map<String, Integer> dict = new HashMap<>();
     for (int i = 0; i < 256; i++) {
       dict.put(String.valueOf((char) i), i);
     }
-    String P = String.valueOf((char) input[0]);
-    for (int i = 1; i < input.length; i++) {
-      String C = String.valueOf((char) input[i]);
+    String P = String.valueOf((char) content[0]);
+    for (int i = 1; i < content.length; i++) {
+      String C = String.valueOf((char) content[i]);
       
       if (dict.containsKey(P + C)) {
         P += C;
       } else {
-        output.append(encoder.encode(dict.get(P) + 1));
+        result.append(encoder.encode(dict.get(P) + 1));
         dict.put(P + C, dict.size());
         P = C;
       }
     }
-    output.append(encoder.encode(dict.get(P) + 1));
+    result.append(encoder.encode(dict.get(P) + 1));
     
     if (encoder.getCodingType() == CodingType.ELIAS_GAMMA || encoder.getCodingType() == CodingType.ELIAS_DELTA) {
-      int lastByteSize = output.length() % 8;
+      int lastByteSize = result.length() % 8;
       if (lastByteSize != 0) {
-        output.append(getNZeros(8 - lastByteSize));
+        result.append(getNZeros(8 - lastByteSize));
       }
     } else {
-      int padding = (output.length() + 3) % 8;
+      int padding = (result.length() + 3) % 8;
       if (padding != 0) {
         String offset = String.format("%3s", Integer.toBinaryString(padding)).replaceAll(" ", "0");
-        output = new StringBuilder(offset + output + getNZeros(padding));
+        result = new StringBuilder(offset + result + getNZeros(padding));
       } else {
-        output.insert(0, "000");
+        result.insert(0, "000");
       }
     }
-    return getBytesFromBinaryString(output.toString());
+    return getBytesFromBinaryString(result.toString());
   }
   
-  public byte[] decode(byte[] content) {
+  public byte[] decode(byte[] input) {
+    ArrayList<String> dict = new ArrayList<>();
+    for (int i = 0; i < 256; i++) {
+      dict.add(String.valueOf((char) i));
+    }
     
-    return null;
+    String content = getBinaryStringFromBytes(input);
+    if (decoder.getCodingType() != CodingType.ELIAS_GAMMA && decoder.getCodingType() != CodingType.ELIAS_DELTA) {
+      int num = Integer.parseInt(content.substring(0, 3), 2);
+      content = content.substring(3, content.length() - num);
+    }
+    ArrayList<Integer> codes = decoder.decode(content);
+    for (int i = 0; i < codes.size(); i++) {
+      codes.set(i, codes.get(i) - 1);
+    }
+    int index = 0;
+    int OLD = codes.get(index);
+    String S = dict.get(OLD);
+    String C = dict.get(OLD);
+    StringBuilder result = new StringBuilder(S);
+    index++;
+    while (index < codes.size()) {
+      int NEW = codes.get(index);
+      if (NEW >= dict.size()) {
+        S = dict.get(OLD);
+        S = S + C;
+      } else {
+        S = dict.get(NEW);
+      }
+      result.append(S);
+      C = S;
+      dict.add(dict.get(OLD) + C);
+      OLD = NEW;
+      index++;
+    }
+    return result.toString().getBytes();
   }
   
   private String getNZeros(int n) {
@@ -80,4 +120,11 @@ public class LZWCode {
     return bytes;
   }
   
+  private String getBinaryStringFromBytes(byte[] bytes) {
+    StringBuilder s = new StringBuilder();
+    for (byte aByte : bytes) {
+      s.append(String.format("%8s", Integer.toBinaryString(aByte & 0xFF)).replace(' ', '0'));
+    }
+    return s.toString();
+  }
 }

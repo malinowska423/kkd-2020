@@ -1,6 +1,7 @@
 import java.util.ArrayList;
+import java.util.Collections;
 
-public class FibonacciCode implements Encoder {
+public class FibonacciCode implements Encoder, Decoder {
   @Override
   public String encode(int number) {
     ArrayList<Integer> seq = getEncodeSequence(number);
@@ -47,9 +48,35 @@ public class FibonacciCode implements Encoder {
       a = b;
       b = temp + a;
     }
-    return (ArrayList<Integer>) l.subList(2, l.size());
+    return new ArrayList<>(l.subList(2, l.size()));
   }
   
+  
+  @Override
+  public ArrayList<Integer> decode(String code) {
+    String[] splitted = code.split("11");
+    ArrayList<String> codes = new ArrayList<>();
+    int bound = code.endsWith("11") ? splitted.length : splitted.length - 1;
+    for (int i = 0; i < bound; i++) {
+      codes.add(splitted[i] + "1");
+    }
+    ArrayList<Integer> len = new ArrayList<>();
+    for (String c : codes) {
+      len.add(c.length());
+    }
+    ArrayList<Integer> seq = getDecodeSequence(Collections.max(len));
+    ArrayList<Integer> sums = new ArrayList<>();
+    for (String c : codes) {
+      int sum = 0;
+      for (int i = 0; i < c.length(); i++) {
+        if (c.charAt(i) == '1') {
+          sum += seq.get(i);
+        }
+      }
+      sums.add(sum);
+    }
+    return sums;
+  }
   
   @Override
   public CodingType getCodingType() {
