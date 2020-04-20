@@ -37,3 +37,24 @@ Aby zdekodować plik `test.out` do pliku `test-back.txt` należy wywołać polec
 ```
 $ java -cp out Main -d test.out test-back.txt
 ```
+
+## Lista 3
+Pliki źródłowe do tej listy znajdują się w folderze `lista2`, a są to:
+- `CodingType.java` - typ wyliczeniowy enum określający typy kodowania obsługiwane przez program
+- `Decoder.java` - interfejs definiujący budowę obiektu dekodującego ciąg znaków
+- `EliasDecoder.java` - klasa zawierająca metody dekodujące ciąg znaków kodowaniem Eliasa
+- `EliasEncoder.java` - klasa zawierająca metody kodujące ciąg znaków kodowaniem Eliasa
+- `Encoder.java` - interfejs definiujący budowę obiektu kodującego wartość
+- `FibonacciCode.java` - klasa zawierająca metody kodującą i dekodującą kodowaniem Fibonacciego
+- `LZWCode.java` - główna klasa zawierająca metody kodującą i dekodującą podany ciąg bajtów według podanego typu kodowania
+- `Main.java` - klasa obsługująca wejście i wyjście z programu
+
+Kompilacja przebiega analogicznie do list poprzednich.
+
+Uruchomienie programu przebiega analogicznie do listy poprzedniej z tą różnicą, że należy podać dodatkowy argument w postaci flagi typu kodowania. Są to `-omega`, `-delta`, `-gamma` dla kodowania Eliasa oraz `-fib` dla kodowania Fibonacciego.
+
+<b>Przykład kompilacji i uruchomienia</b>
+```
+$ javac -d out Main.java && java -cp out Main.java -e testy/test.txt testy/test.out -fib
+$ javac -d out Main.java && java -cp out Main.java -d testy/test.out testy/test-back.txt -fib
+```

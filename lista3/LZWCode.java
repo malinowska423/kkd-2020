@@ -127,4 +127,29 @@ public class LZWCode {
     }
     return s.toString();
   }
+  
+  public static double entropy(byte[] content) {
+    Map<Byte, Integer> symbolOccur = new HashMap<>();
+    symbolOccur.put(content[0], 1);
+    for (int i = 1; i < content.length; i++) {
+      byte key = content[i];
+      symbolOccur.put(key, symbolOccur.get(key) != null ? symbolOccur.get(key) + 1 : 1);
+    }
+    
+    int size = content.length;
+    double sizeLog = log2(size);
+    final double[] entropy = {0};
+    
+    symbolOccur.forEach((symbol, occur) -> {
+      entropy[0] += (sizeLog - log2(occur)) * occur;
+    });
+    
+    
+    return entropy[0] / size;
+  }
+  
+  private static double log2(double x) {
+    return Math.log(x) / Math.log(2);
+  }
+  
 }

@@ -1,7 +1,4 @@
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -31,39 +28,28 @@ public class Main {
       }
       switch (args[0]) {
         case "-e" -> {
-          try (InputStream stream = Files.newInputStream(Paths.get(input))) {
-            byte[] content = stream.readAllBytes();
-            stream.close();
-            var coder = new LZWCode(coding);
-            var result = coder.encode(content);
-            OutputStream out = Files.newOutputStream(Paths.get(output));
-            out.write(result);
-            out.close();
+          try {
+            byte[] content = Files.readAllBytes(Paths.get(input));
+            var result = (new LZWCode(coding)).encode(content);
+            Files.write(Paths.get(output), result);
+    
             System.out.println("\n========= Zakodowano plik: " + input + " =========");
             System.out.println("Rozmiar pliku wejsciowego: " + content.length + " B");
             System.out.println("Rozmiar pliku wyjsciowego: " + result.length + " B");
-          
-//            String stringContent = new String(content, StandardCharsets.UTF_8);
-//            var entropy = AdaptiveHuffmanCode.entropy(stringContent);
-//            var avg = (double) result.length / stringContent.length();
-//            var ratio = (double) content.length / result.length;
-//
-//            System.out.println("Entropia: " + entropy);
-//            System.out.println("Srednia dlugosc kodu: " + avg);
-//            System.out.println("Stopien kompresji: " + ratio);
+    
+            System.out.println("Entropia tekstu: " + LZWCode.entropy(content));
+            System.out.println("Entropia kodu: " + LZWCode.entropy(result));
+            System.out.println("Stopien kompresji: " + (double) content.length / result.length);
           } catch (IOException ioe) {
             System.out.println("Blad: " + ioe.getMessage());
           }
         }
         case "-d" -> {
-          try (InputStream stream = Files.newInputStream(Paths.get(input))) {
-            byte [] content = stream.readAllBytes();
-            stream.close();
-            var coder = new LZWCode(coding);
-            var result = coder.decode(content);
-            OutputStream out = Files.newOutputStream(Paths.get(output));
-            out.write(result);
-            out.close();
+          try {
+            byte[] content = Files.readAllBytes(Paths.get(input));
+            var result = (new LZWCode(coding)).decode(content);
+            Files.write(Paths.get(output), result);
+    
             System.out.println("\n========= Zdekodowano plik: " + input + " =========");
             System.out.println("Rozmiar pliku wejsciowego: " + content.length + " B");
             System.out.println("Rozmiar pliku wyjsciowego: " + result.length + " B");
