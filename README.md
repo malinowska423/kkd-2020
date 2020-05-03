@@ -39,7 +39,7 @@ $ java -cp out Main -d test.out test-back.txt
 ```
 
 ## Lista 3
-Pliki źródłowe do tej listy znajdują się w folderze `lista2`, a są to:
+Pliki źródłowe do tej listy znajdują się w folderze `lista3`, a są to:
 - `CodingType.java` - typ wyliczeniowy enum określający typy kodowania obsługiwane przez program
 - `Decoder.java` - interfejs definiujący budowę obiektu dekodującego ciąg znaków
 - `EliasDecoder.java` - klasa zawierająca metody dekodujące ciąg znaków kodowaniem Eliasa
@@ -57,4 +57,19 @@ Uruchomienie programu przebiega analogicznie do listy poprzedniej z tą różnic
 ```
 $ javac -d out Main.java && java -cp out Main.java -e testy/test.txt testy/test.out -fib
 $ javac -d out Main.java && java -cp out Main.java -d testy/test.out testy/test-back.txt -fib
+```
+
+## Lista 4
+Pliki źródłowe do tej listy znajdują się w folderze `lista3`, a są to:
+- `Pixel.java` - klasa obiektu piksela obrazu
+- `JPEGLS.java` - główna klasa zawierająca metodę kodującą oraz liczącą entopię
+- `Main.java` - klasa obsługująca wejście i wyjście z programu
+
+Kompilacja przebiega analogicznie do list poprzednich.
+
+Jedynym argumentem przy uruchomieniu jest nazwa pliku w formacie `.tga`.
+
+<b>Przykład kompilacji i uruchomienia</b>
+```
+$ javac -d out Main.java && java -cp out Main.java testy/example0.tga
 ```
