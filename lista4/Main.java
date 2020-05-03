@@ -14,8 +14,10 @@ public class Main {
         byte[] content = Files.readAllBytes(Paths.get(input));
         JPEGLS jpegls = new JPEGLS(content);
         jpegls.printEntropyInfo();
-        
-        
+        jpegls.encode(0);
+//        jpegls.printEncodingStats();
+  
+  
       } catch (IOException ioe) {
         System.out.println("Blad: " + ioe.getMessage());
       }

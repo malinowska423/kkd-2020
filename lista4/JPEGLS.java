@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class JPEGLS {
@@ -8,15 +9,76 @@ public class JPEGLS {
   
   public JPEGLS(byte[] input) {
     initSchemes();
-    
+  
     int width = input[13] * 256 + input[12] & 0xFF;
     int height = input[15] * 256 + input[14] & 0xFF;
-    parseBitmap(input, width, height);
-    
+//    System.out.println("height = " + height);
+//    System.out.println("width = " + width);
+    parseBitmap(Arrays.copyOfRange(input, 18, input.length - 26), width, height);
+  
   }
   
   private static double log2(double x) {
     return Math.log(x) / Math.log(2);
+  }
+  
+  public void printEncodingStats() {
+    ArrayList<Color> colors = new ArrayList<>();
+    colors.add(Color.ALL);
+    colors.add(Color.RED);
+    colors.add(Color.GREEN);
+    colors.add(Color.BLUE);
+    
+    for (Color color :
+        colors) {
+      int bestScheme = findBestSchemeID(color) + 1;
+      System.out.println("\nNajlepszy schemat (kolor: " + color.name() + "):\t" + bestScheme + "\n\n");
+    }
+  }
+  
+  public int findBestSchemeID(Color color) {
+    System.out.println("=================== ENTROPIA WG SCHEMATU (kolor: " + color.name() + ") ===================");
+    double bestEntropy = Double.MAX_VALUE;
+    int bestSchemeID = -1;
+    for (Scheme scheme :
+        schemes) {
+      int id = schemes.indexOf(scheme);
+      ArrayList<ArrayList<Pixel>> encoded = encode(id);
+      double entropy = getEntropy(encoded, color);
+      if (entropy < bestEntropy) {
+        bestEntropy = entropy;
+        bestSchemeID = id;
+      }
+      System.out.println((id + 1) + ":\t" + entropy);
+    }
+    return bestSchemeID;
+  }
+  
+  public ArrayList<ArrayList<Pixel>> encode(int schemeID) {
+    Scheme scheme = schemes.get(schemeID);
+    ArrayList<ArrayList<Pixel>> result = new ArrayList<>();
+    for (int i = 0; i < bitmap.size(); i++) {
+      ArrayList<Pixel> encodedRow = new ArrayList<>();
+      for (int j = 0; j < bitmap.get(i).size(); j++) {
+        Pixel n = i == 0 ? new Pixel(0, 0, 0) : bitmap.get(i - 1).get(j);
+        Pixel w = j == 0 ? new Pixel(0, 0, 0) : bitmap.get(i).get(j - 1);
+        Pixel nw = i == 0 || j == 0 ? new Pixel(0, 0, 0) : bitmap.get(i - 1).get(j - 1);
+//        if (i == 0 && j < 10) {
+//          System.out.print("n = " + n);
+//          System.out.print("w = " + w);
+//          System.out.println("nw = " + nw);
+//        }
+        encodedRow.add(bitmap.get(i).get(j).sub(scheme.count(n, w, nw)).mod(256));
+      }
+      result.add(encodedRow);
+//      if (i == 0) System.out.println(encodedRow);
+    }
+    for (int i = 0; i < 10; i++) {
+      for (int j = 0; j < 10; j++) {
+        System.out.println(result.get(i).get(j));
+      }
+    }
+    return result;
   }
   
   private void initSchemes() {
@@ -54,7 +116,8 @@ public class JPEGLS {
     bitmap = new ArrayList<>();
     ArrayList<Pixel> row = new ArrayList<>();
     for (int i = 0; i < width * height; i++) {
-      row.add(new Pixel(bitmapBytes[i * 3 + 2] & 0xFF, bitmapBytes[i * 3 + 1] & 0xFF, bitmapBytes[i * 3] & 0xFF));
+      Pixel pixel = new Pixel(bitmapBytes[i * 3 + 2], bitmapBytes[i * 3 + 1], bitmapBytes[i * 3]);
+      row.add(pixel);
       if (width == row.size()) {
         bitmap.add(0, row);
         row = new ArrayList<>();
@@ -64,14 +127,14 @@ public class JPEGLS {
   
   public void printEntropyInfo() {
     System.out.println("=================== ENTROPIA (wg koloru) ===================");
-    System.out.println("wszystkie:\t" + getEntropy(Color.ALL));
-    System.out.println("czerwony:\t" + getEntropy(Color.RED));
-    System.out.println("zielony:\t" + getEntropy(Color.GREEN));
-    System.out.println("niebieski:\t" + getEntropy(Color.BLUE));
+    System.out.println("wszystkie:\t" + getEntropy(bitmap, Color.ALL));
+    System.out.println("czerwony:\t" + getEntropy(bitmap, Color.RED));
+    System.out.println("zielony:\t" + getEntropy(bitmap, Color.GREEN));
+    System.out.println("niebieski:\t" + getEntropy(bitmap, Color.BLUE));
     System.out.println("\n");
   }
   
-  private double getEntropy(Color color) {
+  private double getEntropy(ArrayList<ArrayList<Pixel>> bitmap, Color color) {
     HashMap<Integer, Integer> freq = new HashMap<>();
     int size = 0;
     for (ArrayList<Pixel> row :

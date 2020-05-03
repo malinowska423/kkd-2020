@@ -31,9 +31,14 @@ public class Pixel {
   }
   
   Pixel mod(int number) {
-    this.red %= number;
-    this.green %= number;
-    this.blue %= number;
+    this.red = (this.red + number) % number;
+    this.green = (this.green + number) % number;
+    this.blue = (this.blue + number) % number;
     return this;
+  }
+  
+  @Override
+  public String toString() {
+    return "{" + red + ", " + green + ", " + blue + "}";
   }
 }
