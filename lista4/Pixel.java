@@ -9,32 +9,26 @@ public class Pixel {
     this.blue = blue;
   }
   
+  public Pixel() {
+    this.red = 0;
+    this.green = 0;
+    this.blue = 0;
+  }
+  
   Pixel add(Pixel other) {
-    this.red += other.red;
-    this.green += other.green;
-    this.blue += other.blue;
-    return this;
+    return new Pixel(red + other.red, green + other.green, blue + other.blue);
   }
   
   Pixel sub(Pixel other) {
-    this.red -= other.red;
-    this.green -= other.green;
-    this.blue -= other.blue;
-    return this;
+    return new Pixel(red - other.red, green - other.green, blue - other.blue);
   }
   
   Pixel div(int number) {
-    this.red /= number;
-    this.green /= number;
-    this.blue /= number;
-    return this;
+    return new Pixel(red / number, green / number, blue / number);
   }
   
   Pixel mod(int number) {
-    this.red = (this.red + number) % number;
-    this.green = (this.green + number) % number;
-    this.blue = (this.blue + number) % number;
-    return this;
+    return new Pixel((red + number) % number, (green + number) % number, (blue + number) % number);
   }
   
   @Override

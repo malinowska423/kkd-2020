@@ -5,15 +5,13 @@ import java.util.HashMap;
 public class JPEGLS {
   
   private ArrayList<Scheme> schemes;
-  private ArrayList<ArrayList<Pixel>> bitmap;
+  private Pixel[][] bitmap;
   
   public JPEGLS(byte[] input) {
     initSchemes();
   
     int width = input[13] * 256 + input[12] & 0xFF;
     int height = input[15] * 256 + input[14] & 0xFF;
-//    System.out.println("height = " + height);
-//    System.out.println("width = " + width);
     parseBitmap(Arrays.copyOfRange(input, 18, input.length - 26), width, height);
   
   }
@@ -43,7 +41,7 @@ public class JPEGLS {
     for (Scheme scheme :
         schemes) {
       int id = schemes.indexOf(scheme);
-      ArrayList<ArrayList<Pixel>> encoded = encode(id);
+      Pixel[][] encoded = encode(id);
       double entropy = getEntropy(encoded, color);
       if (entropy < bestEntropy) {
         bestEntropy = entropy;
@@ -54,28 +52,15 @@ public class JPEGLS {
     return bestSchemeID;
   }
   
-  public ArrayList<ArrayList<Pixel>> encode(int schemeID) {
+  public Pixel[][] encode(int schemeID) {
     Scheme scheme = schemes.get(schemeID);
-    ArrayList<ArrayList<Pixel>> result = new ArrayList<>();
-    for (int i = 0; i < bitmap.size(); i++) {
-      ArrayList<Pixel> encodedRow = new ArrayList<>();
-      for (int j = 0; j < bitmap.get(i).size(); j++) {
-        Pixel n = i == 0 ? new Pixel(0, 0, 0) : bitmap.get(i - 1).get(j);
-        Pixel w = j == 0 ? new Pixel(0, 0, 0) : bitmap.get(i).get(j - 1);
-        Pixel nw = i == 0 || j == 0 ? new Pixel(0, 0, 0) : bitmap.get(i - 1).get(j - 1);
-//        if (i == 0 && j < 10) {
-//          System.out.print("n = " + n);
-//          System.out.print("w = " + w);
-//          System.out.println("nw = " + nw);
-//        }
-        encodedRow.add(bitmap.get(i).get(j).sub(scheme.count(n, w, nw)).mod(256));
-      }
-      result.add(encodedRow);
-//      if (i == 0) System.out.println(encodedRow);
-    }
-    for (int i = 0; i < 10; i++) {
-      for (int j = 0; j < 10; j++) {
-        System.out.println(result.get(i).get(j));
+    Pixel[][] result = new Pixel[bitmap.length][bitmap[0].length];
+    for (int i = 0; i < bitmap.length; i++) {
+      for (int j = 0; j < bitmap[0].length; j++) {
+        Pixel n = i == 0 ? new Pixel() : bitmap[i - 1][j];
+        Pixel w = j == 0 ? new Pixel() : bitmap[i][j - 1];
+        Pixel nw = i == 0 || j == 0 ? new Pixel() : bitmap[i - 1][j - 1];
+        result[i][j] = bitmap[i][j].sub(scheme.count(n, w, nw)).mod(256);
       }
     }
     return result;
@@ -113,19 +98,16 @@ public class JPEGLS {
   }
   
   private void parseBitmap(byte[] bitmapBytes, int width, int height) {
-    bitmap = new ArrayList<>();
-    ArrayList<Pixel> row = new ArrayList<>();
-    for (int i = 0; i < width * height; i++) {
-      Pixel pixel = new Pixel(bitmapBytes[i * 3 + 2], bitmapBytes[i * 3 + 1], bitmapBytes[i * 3]);
-      row.add(pixel);
-      if (width == row.size()) {
-        bitmap.add(0, row);
-        row = new ArrayList<>();
+    bitmap = new Pixel[height][width];
+    for (int i = 0, k = 0; i < height; i++) {
+      for (int j = 0; j < width; j++) {
+        bitmap[i][j] = new Pixel(bitmapBytes[k * 3 + 2], bitmapBytes[k * 3 + 1], bitmapBytes[k * 3]);
+        k++;
       }
     }
   }
   
-  public void printEntropyInfo() {
+  public void printBitmapEntropyInfo() {
     System.out.println("=================== ENTROPIA (wg koloru) ===================");
     System.out.println("wszystkie:\t" + getEntropy(bitmap, Color.ALL));
     System.out.println("czerwony:\t" + getEntropy(bitmap, Color.RED));
@@ -134,26 +116,23 @@ public class JPEGLS {
     System.out.println("\n");
   }
   
-  private double getEntropy(ArrayList<ArrayList<Pixel>> bitmap, Color color) {
+  private double getEntropy(Pixel[][] bitmap, Color color) {
     HashMap<Integer, Integer> freq = new HashMap<>();
     int size = 0;
-    for (ArrayList<Pixel> row :
+    for (Pixel[] row :
         bitmap) {
       for (Pixel pixel :
           row) {
         if (color == Color.ALL || color == Color.RED) {
-          int key = pixel.red;
-          freq.put(key, freq.get(key) != null ? freq.get(key) + 1 : 1);
+          freq.put(pixel.red, freq.getOrDefault(pixel.red, 0) + 1);
           size++;
         }
         if (color == Color.ALL || color == Color.GREEN) {
-          int key = pixel.green;
-          freq.put(key, freq.get(key) != null ? freq.get(key) + 1 : 1);
+          freq.put(pixel.green, freq.getOrDefault(pixel.green, 0) + 1);
           size++;
         }
         if (color == Color.ALL || color == Color.BLUE) {
-          int key = pixel.blue;
-          freq.put(key, freq.get(key) != null ? freq.get(key) + 1 : 1);
+          freq.put(pixel.blue, freq.getOrDefault(pixel.blue, 0) + 1);
           size++;
         }
       }
@@ -164,9 +143,7 @@ public class JPEGLS {
   private double countEntropy(HashMap<Integer, Integer> freq, int size) {
     double sizeLog = log2(size);
     final double[] entropy = {0};
-    freq.forEach((color, occur) -> {
-      entropy[0] += (sizeLog - log2(occur)) * occur;
-    });
+    freq.forEach((color, occur) -> entropy[0] += (sizeLog - log2(occur)) * occur);
     return entropy[0] / size;
   }
   
@@ -177,5 +154,7 @@ public class JPEGLS {
     ALL
   }
   
-  
+  private interface Scheme {
+    Pixel count(Pixel n, Pixel w, Pixel nw);
+  }
 }
