@@ -25,11 +25,25 @@ public class Quantizer {
   }
   
   public double mse() {
-    return 0;
+    double sum = 0;
+    for (int i = 0; i < tga.height; i++) {
+      for (int j = 0; j < tga.width; j++) {
+        sum += Math.pow(euclidSquared(getPixelAsDoubleArray(tga.getBitmap()[i][j]), getPixelAsDoubleArray(bitmap[i][j])), 2);
+      }
+    }
+    return sum * (1.0 / (tga.width * tga.height));
   }
   
   public double snr(double MSE) {
-    return 0;
+    double sum = 0;
+    for (Pixel[] row :
+        tga.getBitmap()) {
+      for (Pixel pixel :
+          row) {
+        sum += Math.pow(pixel.red, 2) + Math.pow(pixel.green, 2) + Math.pow(pixel.blue, 2);
+      }
+    }
+    return (sum * (1.0 / (tga.width * tga.height))) / MSE;
   }
   
   private Pixel[] generateCodeBook(int codebookSize) {
