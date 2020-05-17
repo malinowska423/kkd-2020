@@ -131,8 +131,6 @@ public class Quantizer {
     }
     codebook = newCodebook;
   
-    System.out.println("Splitting " + codebook.size());
-  
     double averageDistortion = 0.0;
     double error = epsilon + 1;
     while (error > epsilon) {
@@ -140,8 +138,8 @@ public class Quantizer {
       for (int i = 0; i < dataSize; i++) {
         closest.add(null);
       }
-      DefaultDict<Integer, ArrayList<Double[]>> nearestVectors = new DefaultDict<>(ArrayList.class);
-      DefaultDict<Integer, ArrayList<Integer>> nearestVectorsIndexes = new DefaultDict<>(ArrayList.class);
+      HashMap<Integer, ArrayList<Double[]>> nearestVectors = new HashMap<>();
+      HashMap<Integer, ArrayList<Integer>> nearestVectorsIndexes = new HashMap<>();
       for (int i = 0; i < data.size(); i++) {
         double minDist = -1;
         int closestIndex = -1;
@@ -153,6 +151,8 @@ public class Quantizer {
             closestIndex = j;
           }
         }
+        nearestVectors.putIfAbsent(closestIndex, new ArrayList<>());
+        nearestVectorsIndexes.putIfAbsent(closestIndex, new ArrayList<>());
         nearestVectors.get(closestIndex).add(data.get(i));
         nearestVectorsIndexes.get(closestIndex).add(i);
       }
@@ -197,29 +197,6 @@ public class Quantizer {
     public Pair(U first, V second) {
       this.first = first;
       this.second = second;
-    }
-  }
-  
-  public static class DefaultDict<K, V> extends HashMap<K, V> {
-    
-    Class<V> klass;
-    
-    public DefaultDict(Class klass) {
-      this.klass = klass;
-    }
-    
-    @Override
-    public V get(Object key) {
-      V returnValue = super.get(key);
-      if (returnValue == null) {
-        try {
-          returnValue = klass.newInstance();
-        } catch (Exception e) {
-          throw new RuntimeException(e);
-        }
-        this.put((K) key, returnValue);
-      }
-      return returnValue;
     }
   }
   

@@ -60,7 +60,7 @@ $ javac -d out Main.java && java -cp out Main.java -d testy/test.out testy/test-
 ```
 
 ## Lista 4
-Pliki źródłowe do tej listy znajdują się w folderze `lista3`, a są to:
+Pliki źródłowe do tej listy znajdują się w folderze `lista4`, a są to:
 - `Pixel.java` - klasa obiektu piksela obrazu
 - `JPEGLS.java` - główna klasa zawierająca metodę kodującą oraz liczącą entopię
 - `Main.java` - klasa obsługująca wejście i wyjście z programu
@@ -72,4 +72,19 @@ Jedynym argumentem przy uruchomieniu jest nazwa pliku w formacie `.tga`.
 <b>Przykład kompilacji i uruchomienia</b>
 ```
 $ javac -d out Main.java && java -cp out Main.java testy/example0.tga
+```
+## Lista 5
+Pliki źródłowe do tej listy znajdują się w folderze `lista5`, a są to:
+- `Pixel.java` - klasa obiektu piksela obrazu
+- `TGAAnalyzer.java` - klasa obiektu obrazu w formacie TGA, zawierająca metody odczytu i zapisu bitmapy
+- `Quantizer.java` - główna klasa zawierająca metodę dokonującą kwantyzacji wektorowej
+- `Main.java` - klasa obsługująca wejście i wyjście z programu
+
+Kompilacja przebiega analogicznie do list poprzednich.
+
+Argumentami przy uruchomieniu są następujące wartości: ``[nazwa_pliku_wejsciowego.tga] [nazwa_pliku_wyjsciowego.tga] [liczba_kolorow]``.
+
+<b>Przykład kompilacji i uruchomienia</b>
+```
+$ javac -d out Main.java && java -cp out Main.java testy/example0.tga testy/out.tga 2
 ```
