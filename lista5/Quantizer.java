@@ -28,10 +28,10 @@ public class Quantizer {
     double sum = 0;
     for (int i = 0; i < tga.height; i++) {
       for (int j = 0; j < tga.width; j++) {
-        sum += Math.pow(euclidSquared(getPixelAsDoubleArray(tga.getBitmap()[i][j]), getPixelAsDoubleArray(bitmap[i][j])), 2);
+        sum += euclidSquared(getPixelAsDoubleArray(tga.getBitmap()[i][j]), getPixelAsDoubleArray(bitmap[i][j]));
       }
     }
-    return sum * (1.0 / (tga.width * tga.height));
+    return sum / (tga.width * tga.height);
   }
   
   public double snr(double MSE) {

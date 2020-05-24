@@ -10,11 +10,11 @@ public class TGAAnalyzer {
   public TGAAnalyzer(byte[] tgaImage) {
     header = Arrays.copyOfRange(tgaImage, 0, 18);
     footer = Arrays.copyOfRange(tgaImage, tgaImage.length - 26, tgaImage.length);
-    
-    width = tgaImage[13] * 256 + tgaImage[12] & 0xFF;
-    height = tgaImage[15] * 256 + tgaImage[14] & 0xFF;
+  
+    width = tgaImage[13] * 256 + (tgaImage[12] & 0xFF);
+    height = tgaImage[15] * 256 + (tgaImage[14] & 0xFF);
     parseBitmap(Arrays.copyOfRange(tgaImage, 18, tgaImage.length - 26), width, height);
-    
+  
   }
   
   private void parseBitmap(byte[] bitmapBytes, int width, int height) {
