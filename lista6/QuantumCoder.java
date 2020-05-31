@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class QuantumCoder {
   public Pixel[][] filteredLow;
@@ -59,20 +58,19 @@ public class QuantumCoder {
     for (byte x : byteArray) {
       bitStringBuilder.append(EliasGamma.encode(x));
     }
-    
+  
     String bitString = bitStringBuilder.toString();
-    
+  
     if (bitString.length() % 8 != 0) {
       bitString += "0".repeat(8 - (bitString.length() % 8));
     }
-    
-    bytes = bitStringToBytes(bitString);
+  
+    bytes = getBytesFromBinaryString(bitString);
     quantified = quantify(filteredHigh);
   }
   
   public byte[] decode() {
     String content = getBinaryStringFromBytes(tga.bitmapBytes);
-    System.out.println("content = " + content.substring(0, 70));
     ArrayList<Integer> codes = EliasGamma.decode(content);
     codes.forEach(x -> x = x % 2 == 0 ? x / 2 : -(x / 2));
     ArrayList<Integer> decoded = differentialDecoding(codes);
@@ -125,11 +123,15 @@ public class QuantumCoder {
     return quantifiedPixels;
   }
   
-  byte[] bitStringToBytes(String bitString) {
-    byte[] bytes = new byte[bitString.length() / 8];
-    for (int i = 0; i < bitString.length(); i += 8) {
-      int temp = Integer.parseInt(bitString.substring(i, i + 8), 2);
-      bytes[i / 8] = (byte) temp;
+  byte[] getBytesFromBinaryString(String s) {
+    int size = (s.length() / 8) + (s.length() % 8 > 0 ? 1 : 0);
+    byte[] bytes = new byte[size];
+    for (int i = 0, k = 0; i < size; i++, k += 8) {
+      try {
+        bytes[i] = (byte) Short.parseShort(s.substring(k, k + 8), 2);
+      } catch (StringIndexOutOfBoundsException e) {
+        bytes[i] = (byte) Short.parseShort(s.substring(k), 2);
+      }
     }
     return bytes;
   }

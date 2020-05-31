@@ -18,8 +18,6 @@ public class EliasGamma {
         counter++;
         index++;
       } else {
-        System.out.println("index = " + index);
-        System.out.println("counter = " + (index + counter + 1));
         codes.add(Integer.parseInt(code.substring(index, index + counter + 1), 2));
         index += counter + 1;
         counter = 0;

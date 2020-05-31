@@ -88,3 +88,19 @@ Argumentami przy uruchomieniu są następujące wartości: ``[nazwa_pliku_wejsci
 ```
 $ javac -d out Main.java && java -cp out Main.java testy/example0.tga testy/out.tga 2
 ```
+## Lista 6
+Pliki źródłowe do tej listy znajdują się w folderze `lista6`, a są to:
+- `Pixel.java` - klasa obiektu piksela obrazu
+- `TGAAnalyzer.java` - klasa obiektu obrazu w formacie TGA, zawierająca metody odczytu i zapisu bitmapy
+- `EliasGamma.java` - klasa zawierające metodę kodującą i dekodującą metodą Eliasa gamma
+- `QuantumCoder.java` - główna klasa zawierająca metodę kodującą i dekodującą obraz
+- `Main.java` - klasa obsługująca wejście i wyjście z programu
+
+Kompilacja przebiega analogicznie do list poprzednich.
+
+Argumentami przy uruchomieniu są następujące wartości: ``[flaga --e/--d] [plik_wejsciowy] [k]``.
+
+<b>Przykład kompilacji i uruchomienia</b>
+```
+$ javac -d out Main.java && java -cp out Main.java --e testy/example0.tga 2
+```
