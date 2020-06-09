@@ -6,10 +6,14 @@ import java.security.SecureRandom;
 public class Noise {
   private final double probability;
   private final SecureRandom random;
+  private int changed;
+  private int allChecked;
   
   public Noise(double probability) {
     this.probability = probability;
     this.random = new SecureRandom();
+    this.changed = 0;
+    this.allChecked = 0;
   }
   
   public static void main(String[] args) {
@@ -31,10 +35,9 @@ public class Noise {
       try {
         byte[] content = Files.readAllBytes(Paths.get(input));
         var noise = new Noise(p);
-//        noise.testProbability(100);
         byte[] result = noise.disruptData(content);
         Files.write(Paths.get(output), result);
-        System.out.println("\nZaburzono <<" + input + ">> z prawdopodobienstwem " + p + " do pliku <<" + output + ">>");
+        System.out.println("\nZaburzono <<" + input + ">> z prawdopodobienstwem " + noise.getRealProbability() + " do pliku <<" + output + ">>");
       } catch (IOException ioe) {
         System.out.println("Blad: " + ioe.getMessage());
       }
@@ -51,6 +54,7 @@ public class Noise {
   
   private byte disruptByte(byte b) {
     String bitString = Integer.toBinaryString(b);
+//    System.out.println("bitString = " + bitString);
     StringBuilder disrupted = new StringBuilder();
     for (int i = 0; i < bitString.length(); i++) {
       char bit = bitString.charAt(i);
@@ -60,8 +64,14 @@ public class Noise {
   }
   
   private boolean shouldChange() {
+    allChecked++;
     double d = random.nextDouble();
+    if (d < probability) changed++;
     return d < probability;
+  }
+  
+  public double getRealProbability() {
+    return changed / (double) allChecked;
   }
   
 }
