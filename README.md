@@ -89,6 +89,7 @@ Argumentami przy uruchomieniu są następujące wartości: ``[nazwa_pliku_wejsci
 $ javac -d out Main.java && java -cp out Main.java testy/example0.tga testy/out.tga 2
 ```
 ## Lista 6
+
 Pliki źródłowe do tej listy znajdują się w folderze `lista6`, a są to:
 - `Pixel.java` - klasa obiektu piksela obrazu
 - `TGAAnalyzer.java` - klasa obiektu obrazu w formacie TGA, zawierająca metody odczytu i zapisu bitmapy
@@ -103,4 +104,22 @@ Argumentami przy uruchomieniu są następujące wartości: ``[flaga --e/--d] [pl
 <b>Przykład kompilacji i uruchomienia</b>
 ```
 $ javac -d out Main.java && java -cp out Main.java --e testy/example0.tga 2
+```
+
+## Lista 7
+
+Pliki źródłowe do tej listy znajdują się w folderze `lista7`, a są to:
+- `HammingEncoder.java` - klasa zawierajaca metodę kodującą plik korzystając z rozszerzonego kodu Hamminga (8, 4)
+- `Noise.java` - klasa zawierajaca metodę, która z prawdopodobieństwem p zamienia na przeciwny każdy bit z pliku
+- `HammingDecoder.java` - klasa zawierajaca metodę dekodującą plik korzystając z rozszerzonego kodu Hamminga (8, 4)
+- `BitComparator.java` - klasa zawierajaca metodę porównującą ile w dwóch plikach jest 4-bitowych nieidentycznych bloków
+
+Kompilacja przebiega analogicznie do list poprzednich.
+
+<b>Przykłady kompilacji i uruchomienia</b>
+```
+$ javac -d out HammingEncoder.java && java -cp out HammingEncoder.java testy/test.txt testy/en-test.txt
+$ javac -d out Noise.java && java -cp out Noise.java 0.05 testy/en-test.txt testy/en-test-n.txt
+$ javac -d out HammingDecoder.java && java -cp out HammingDecoder.java testy/en-test.txt testy/de-test.txt
+$ javac -d out BitComparator.java && java -cp out BitComparator.java testy/test.txt testy/de-test.txt
 ```
